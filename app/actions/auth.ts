@@ -67,7 +67,7 @@ export async function registerAction(formData: FormData): Promise<ActionResponse
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const role = (formData.get('role') as 'admin' | 'seller' | 'buyer') || 'seller';
+  const role = (formData.get('role') as  'seller' | 'buyer') || 'seller';
 
   if (!name || !email || !password) {
     return { success: false, error: 'All fields are required.' };
