@@ -5,7 +5,7 @@ import { placeOrderAction, OrderItemInput } from '../actions/orders';
 import { formatINR, Unit, convertQty, convertPrice } from '@/lib/units';
 import { 
   Search, Trash2, ShoppingCart, CheckCircle, 
-  AlertCircle, Info, Loader2, Plus, ArrowRight, History
+  AlertCircle, Info, Loader2, Plus, ArrowRight, History, X, XCircle
 } from 'lucide-react';
 
 interface Product {
@@ -55,6 +55,17 @@ export default function BuyerDashboardClient({ initialProducts, initialOrders }:
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isPending, startTransition] = useTransition();
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
+
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => {
+      setNotification((prev) => (prev?.message === message ? null : prev));
+    }, 4500);
+  };
 
   // Filter products matching search
   const filteredProducts = initialProducts.filter(
@@ -140,7 +151,7 @@ export default function BuyerDashboardClient({ initialProducts, initialOrders }:
   const handlePlacePurchase = async () => {
     if (cart.length === 0) return;
     if (hasStockErrors) {
-      alert('One or more items exceed available stock. Please adjust quantities.');
+      showNotification('error', 'One or more items exceed available stock. Please adjust quantities.');
       return;
     }
 
@@ -155,15 +166,38 @@ export default function BuyerDashboardClient({ initialProducts, initialOrders }:
       if (res.success) {
         setCart([]);
         setActiveTab('history');
-        alert('Purchase successful! Inventory has been updated.');
+        showNotification('success', 'Purchase successful! Inventory has been updated.');
       } else {
-        alert(res.error || 'Failed to place purchase.');
+        showNotification('error', res.error || 'Failed to place purchase.');
       }
     });
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
+      {/* Premium Toast Notification */}
+      {notification && (
+        <div className="fixed top-6 right-6 z-50 animate-slideIn">
+          <div className={`flex items-center gap-3 rounded-2xl border px-5 py-4 shadow-2xl backdrop-blur-xl ${
+            notification.type === 'success'
+              ? 'border-emerald-500/25 bg-emerald-950/90 text-emerald-300'
+              : 'border-red-500/25 bg-red-950/90 text-red-300'
+          }`}>
+            {notification.type === 'success' ? (
+              <CheckCircle className="h-5 w-5 text-emerald-400 shrink-0" />
+            ) : (
+              <XCircle className="h-5 w-5 text-red-400 shrink-0" />
+            )}
+            <span className="text-sm font-semibold tracking-wide">{notification.message}</span>
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-2 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
       {/* Page Header */}
       <div>
         <h2 className="text-3xl font-extrabold tracking-tight text-white">Buyer Purchase Desk</h2>

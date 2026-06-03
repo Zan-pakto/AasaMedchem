@@ -53,6 +53,17 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
   const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
   const [searchQuery, setSearchQuery] = useState('');
   const [isPending, startTransition] = useTransition();
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
+
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => {
+      setNotification((prev) => (prev?.message === message ? null : prev));
+    }, 4500);
+  };
 
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -86,6 +97,7 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
       const res = await createProductAction(formData);
       if (res.success) {
         setShowAddModal(false);
+        showNotification('success', 'Product created successfully.');
       } else {
         setModalError(res.error || 'Failed to create product.');
       }
@@ -101,6 +113,7 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
       const res = await updateProductAction(formData);
       if (res.success) {
         setEditingProduct(null);
+        showNotification('success', 'Product updated successfully.');
       } else {
         setModalError(res.error || 'Failed to update product.');
       }
@@ -112,14 +125,39 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
     
     startTransition(async () => {
       const res = await deleteProductAction(id);
-      if (!res.success) {
-        alert(res.error || 'Failed to delete product.');
+      if (res.success) {
+        showNotification('success', 'Product deleted successfully.');
+      } else {
+        showNotification('error', res.error || 'Failed to delete product.');
       }
     });
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
+      {/* Premium Toast Notification */}
+      {notification && (
+        <div className="fixed top-6 right-6 z-50 animate-slideIn">
+          <div className={`flex items-center gap-3 rounded-2xl border px-5 py-4 shadow-2xl backdrop-blur-xl ${
+            notification.type === 'success'
+              ? 'border-emerald-500/25 bg-emerald-950/90 text-emerald-300'
+              : 'border-red-500/25 bg-red-950/90 text-red-300'
+          }`}>
+            {notification.type === 'success' ? (
+              <CheckCircle className="h-5 w-5 text-emerald-400 shrink-0" />
+            ) : (
+              <XCircle className="h-5 w-5 text-red-400 shrink-0" />
+            )}
+            <span className="text-sm font-semibold tracking-wide">{notification.message}</span>
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-2 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
       {/* Upper Info / Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
