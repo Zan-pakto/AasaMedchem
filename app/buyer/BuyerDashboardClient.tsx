@@ -93,7 +93,7 @@ export default function BuyerDashboardClient({ initialProducts, initialOrders }:
   const updateCartQty = (productId: number, qty: number) => {
     setCart(
       cart.map((item) =>
-        item.product.id === productId ? { ...item, qty: Math.max(0.0001, qty) } : item
+        item.product.id === productId ? { ...item, qty: Math.max(0, qty) } : item
       )
     );
   };
@@ -373,8 +373,14 @@ export default function BuyerDashboardClient({ initialProducts, initialOrders }:
                             <input
                               type="number"
                               step="0.0001"
-                              value={item.qty}
+                              value={item.qty === 0 ? '' : item.qty}
                               onChange={(e) => updateCartQty(item.product.id, parseFloat(e.target.value) || 0)}
+                              onBlur={(e) => {
+                                const val = parseFloat(e.target.value) || 0;
+                                if (val <= 0) {
+                                  updateCartQty(item.product.id, 1);
+                                }
+                              }}
                               className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
                             />
                           </div>
