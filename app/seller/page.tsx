@@ -21,13 +21,15 @@ export default async function SellerPage() {
     ORDER BY name ASC
   `;
 
-  // Fetch only the logged-in seller's orders
+  // Fetch all orders in the system with customer details
   const orders = await sql`
     SELECT 
       o.id, 
       o.status, 
       o.total_price::float as total_price, 
       o.created_at, 
+      u.name as user_name,
+      u.email as user_email,
       COALESCE(
         json_agg(
           json_build_object(
@@ -45,10 +47,10 @@ export default async function SellerPage() {
         '[]'
       ) as items
     FROM orders o
+    JOIN users u ON o.user_id = u.id
     LEFT JOIN order_items oi ON o.id = oi.order_id
     LEFT JOIN products p ON oi.product_id = p.id
-    WHERE o.user_id = ${session.userId}
-    GROUP BY o.id
+    GROUP BY o.id, u.name, u.email
     ORDER BY o.created_at DESC
   `;
 
@@ -68,6 +70,8 @@ export default async function SellerPage() {
     status: o.status,
     total_price: o.total_price,
     created_at: o.created_at,
+    user_name: o.user_name,
+    user_email: o.user_email,
     items: typeof o.items === 'string' ? JSON.parse(o.items) : o.items,
   }));
 

@@ -15,8 +15,8 @@ export type ProductActionResponse = {
  */
 export async function createProductAction(formData: FormData): Promise<ProductActionResponse> {
   const session = await getSession();
-  if (!session || session.role !== 'admin') {
-    return { success: false, error: 'Unauthorized: Admin access required.' };
+  if (!session || (session.role !== 'admin' && session.role !== 'seller')) {
+    return { success: false, error: 'Unauthorized: Admin or Seller access required.' };
   }
 
   const name = formData.get('name') as string;
@@ -69,8 +69,8 @@ export async function createProductAction(formData: FormData): Promise<ProductAc
  */
 export async function updateProductAction(formData: FormData): Promise<ProductActionResponse> {
   const session = await getSession();
-  if (!session || session.role !== 'admin') {
-    return { success: false, error: 'Unauthorized: Admin access required.' };
+  if (!session || (session.role !== 'admin' && session.role !== 'seller')) {
+    return { success: false, error: 'Unauthorized: Admin or Seller access required.' };
   }
 
   const idRaw = formData.get('id') as string;
@@ -135,8 +135,8 @@ export async function updateProductAction(formData: FormData): Promise<ProductAc
  */
 export async function deleteProductAction(id: number): Promise<ProductActionResponse> {
   const session = await getSession();
-  if (!session || session.role !== 'admin') {
-    return { success: false, error: 'Unauthorized: Admin access required.' };
+  if (!session || (session.role !== 'admin' && session.role !== 'seller')) {
+    return { success: false, error: 'Unauthorized: Admin or Seller access required.' };
   }
 
   try {
