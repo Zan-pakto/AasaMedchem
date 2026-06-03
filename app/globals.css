@@ -1,26 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Default Dark Mode (Sleek dark theme) */
+  --bg-950: #09090b;
+  --bg-900: #18181b;
+  --border-color: #27272a;
+  --text-muted: #a1a1aa;
+  --text-body: #e4e4e7;
+  --text-title: #ffffff;
+  
+  --sky-400: #38bdf8;
+  --emerald-400: #34d399;
+  --red-400: #f87171;
+  --indigo-400: #818cf8;
+  --purple-400: #c084fc;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+.light {
+  /* Light Mode (Clean premium light theme) */
+  --bg-950: #f4f4f5;
+  --bg-900: #ffffff;
+  --border-color: #e4e4e7;
+  --text-muted: #52525b;
+  --text-body: #18181b;
+  --text-title: #09090b;
+
+  --sky-400: #0284c7;
+  --emerald-400: #059669;
+  --red-400: #dc2626;
+  --indigo-400: #4f46e5;
+  --purple-400: #7c3aed;
+}
+
+@theme {
+  --color-zinc-950: var(--bg-950);
+  --color-zinc-900: var(--bg-900);
+  --color-zinc-850: var(--border-color);
+  --color-zinc-800: var(--border-color);
+  --color-zinc-750: var(--border-color);
+  --color-zinc-700: var(--border-color);
+  --color-zinc-500: var(--text-muted);
+  --color-zinc-400: var(--text-muted);
+  --color-zinc-300: var(--text-body);
+  --color-zinc-200: var(--text-body);
+  --color-zinc-100: var(--text-body);
+  --color-white: var(--text-title);
+
+  --color-sky-400: var(--sky-400);
+  --color-emerald-400: var(--emerald-400);
+  --color-red-400: var(--red-400);
+  --color-indigo-400: var(--indigo-400);
+  --color-purple-400: var(--purple-400);
+  
+  --color-background: var(--bg-950);
+  --color-foreground: var(--text-body);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--bg-950);
+  color: var(--text-body);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+* {
+  transition-property: background-color, border-color, color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
 }

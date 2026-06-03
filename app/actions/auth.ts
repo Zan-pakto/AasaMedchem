@@ -2,6 +2,7 @@
 
 import { sql } from '@/lib/db';
 import { hashPassword, verifyPassword, setSessionCookie, clearSessionCookie } from '@/lib/auth';
+import { ensureDbInitialized } from '@/lib/db-setup';
 
 export type ActionResponse = {
   success: boolean;
@@ -21,6 +22,7 @@ export async function loginAction(formData: FormData): Promise<ActionResponse> {
   }
 
   try {
+    await ensureDbInitialized();
     // Look up the user
     const users = await sql`
       SELECT id, name, email, password_hash, role 
@@ -76,6 +78,7 @@ export async function registerAction(formData: FormData): Promise<ActionResponse
   }
 
   try {
+    await ensureDbInitialized();
     // Check if email already exists
     const existing = await sql`
       SELECT id FROM users WHERE email = ${email.toLowerCase().trim()} LIMIT 1

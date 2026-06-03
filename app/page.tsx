@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginAction, registerAction } from './actions/auth';
 import { ShoppingBag, Loader2, Shield, User, Lock, Mail, ChevronRight } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -66,6 +67,10 @@ export default function AuthPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 px-4 py-12 text-zinc-100 relative overflow-hidden">
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       {/* Background gradients */}
       <div className="absolute top-[-20%] left-[-20%] h-[60%] w-[60%] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-20%] h-[60%] w-[60%] rounded-full bg-purple-500/10 blur-[120px] pointer-events-none" />

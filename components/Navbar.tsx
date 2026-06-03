@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { logoutAction } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
 import { LogOut, User, Shield, ShoppingBag, Loader2 } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 interface NavbarProps {
   user: {
@@ -74,6 +75,9 @@ export default function Navbar({ user }: NavbarProps) {
                 </>
               )}
             </div>
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
             {/* Logout Button */}
             <button

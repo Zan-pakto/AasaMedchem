@@ -1,7 +1,6 @@
 import { sql } from './db';
-import { hashPassword } from './auth';
 
-async function main() {
+export async function initializeDatabase() {
   console.log('Starting database setup...');
 
   try {
@@ -61,58 +60,22 @@ async function main() {
 
     console.log('Tables created or already exist.');
 
-    // 2. Seed Default Users
-    console.log('Seeding default users...');
-    const adminEmail = 'admin@inventory.com';
-    const sellerEmail = 'seller@inventory.com';
-    const buyerEmail = 'buyer@inventory.com';
-
-    // Check and seed each default user
-    const checkUser = async (name: string, email: string, passwordHash: string, role: string) => {
-      const existing = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase().trim()} LIMIT 1`;
-      if (existing.length === 0) {
-        await sql`
-          INSERT INTO users (name, email, password_hash, role)
-          VALUES (${name}, ${email.toLowerCase().trim()}, ${passwordHash}, ${role})
-        `;
-        console.log(`- Seeded user: ${email} (${role})`);
-      } else {
-        console.log(`- User already exists: ${email} (${role})`);
-      }
-    };
-
-    const adminHash = hashPassword('admin123');
-    const sellerHash = hashPassword('seller123');
-    const buyerHash = hashPassword('buyer123');
-
-    await checkUser('System Administrator', adminEmail, adminHash, 'admin');
-    await checkUser('Retail Seller', sellerEmail, sellerHash, 'seller');
-    await checkUser('Retail Buyer', buyerEmail, buyerHash, 'buyer');
-
-    // 3. Seed Default Products
-    console.log('Seeding default products...');
-    const existingProducts = await sql`SELECT id FROM products LIMIT 1`;
-    if (existingProducts.length === 0) {
-      await sql`
-        INSERT INTO products (name, sku, description, base_unit, base_price, inventory_qty) VALUES 
-        ('Premium Saffron', 'SAFF-001', 'High-quality Kashmiri saffron threads.', 'g', 350.0000, 150.0000),
-        ('Basmati Rice', 'RICE-BAS-01', 'Premium long grain aged Basmati Rice.', 'kg', 120.0000, 2500.0000),
-        ('Organic Olive Oil', 'OIL-OLV-05', 'Extra virgin cold pressed organic olive oil.', 'L', 950.0000, 80.0000),
-        ('Hand Sanitizer Gel', 'SAN-GEL-500', '70% Alcohol base moisturizing hand sanitizer.', 'mL', 0.5000, 50000.0000),
-        ('Cotton Crewneck T-Shirt', 'TSH-CTN-M', '100% organic cotton classic t-shirt, size M.', 'item', 450.0000, 500.0000)
-      `;
-      console.log('Default products seeded successfully.');
-    } else {
-      console.log('Products already seeded.');
-    }
-
+    console.log('Tables created or already exist.');
     console.log('Database setup completed successfully.');
   } catch (error) {
     console.error('Error during database setup:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
-if (require.main === module || !module.parent) {
-  main();
+let dbInitialized = false;
+
+export async function ensureDbInitialized() {
+  if (dbInitialized) return;
+  await initializeDatabase();
+  dbInitialized = true;
+}
+
+if (typeof require !== 'undefined' && (require.main === module || !module.parent)) {
+  initializeDatabase().catch(() => process.exit(1));
 }
