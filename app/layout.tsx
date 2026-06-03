@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased light`}
     >
       <head>
         <Script
@@ -37,10 +37,10 @@ export default function RootLayout({
               (function() {
                 try {
                   var theme = localStorage.getItem('theme');
-                  if (theme === 'light') {
-                    document.documentElement.classList.add('light');
-                  } else {
+                  if (theme === 'dark') {
                     document.documentElement.classList.remove('light');
+                  } else {
+                    document.documentElement.classList.add('light');
                   }
                 } catch (e) {}
               })()
