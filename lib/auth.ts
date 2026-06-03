@@ -9,7 +9,7 @@ export interface SessionPayload {
   userId: number;
   email: string;
   name: string;
-  role: 'admin' | 'seller';
+  role: 'admin' | 'seller' | 'buyer';
 }
 
 export function hashPassword(password: string): string {
@@ -38,7 +38,7 @@ export async function verifyToken(token: string): Promise<SessionPayload | null>
   try {
     const { payload } = await jose.jwtVerify(token, JWT_SECRET_BYTES);
     return payload as unknown as SessionPayload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -74,7 +74,7 @@ export async function getSession(): Promise<SessionPayload | null> {
     const token = cookieStore.get('auth_token')?.value;
     if (!token) return null;
     return await verifyToken(token);
-  } catch (error) {
+  } catch {
     return null;
   }
 }

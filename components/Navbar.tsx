@@ -9,7 +9,7 @@ interface NavbarProps {
   user: {
     name: string;
     email: string;
-    role: 'admin' | 'seller';
+    role: 'admin' | 'seller' | 'buyer';
   };
 }
 
@@ -61,6 +61,11 @@ export default function Navbar({ user }: NavbarProps) {
                 <>
                   <Shield className="h-3 w-3 text-red-400" />
                   <span className="text-red-400">Admin</span>
+                </>
+              ) : user.role === 'buyer' ? (
+                <>
+                  <ShoppingBag className="h-3 w-3 text-sky-400" />
+                  <span className="text-sky-400">Buyer</span>
                 </>
               ) : (
                 <>

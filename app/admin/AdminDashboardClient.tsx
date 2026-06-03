@@ -10,7 +10,7 @@ import { updateOrderStatusAction } from '../actions/orders';
 import { formatINR, Unit, UNIT_DETAILS, convertQty } from '@/lib/units';
 import { 
   Plus, Search, Edit2, Trash2, AlertTriangle, CheckCircle, 
-  XCircle, Clock, Package, ShoppingCart, Info, Loader2, X, ArrowUpRight
+  XCircle, Clock, Package, ShoppingCart, Loader2, X, ArrowUpRight
 } from 'lucide-react';
 
 interface Product {

@@ -13,8 +13,8 @@ export async function middleware(request: NextRequest) {
   if (token) {
     try {
       const { payload } = await jose.jwtVerify(token, JWT_SECRET_BYTES);
-      user = payload as { userId: number; email: string; name: string; role: 'admin' | 'seller' };
-    } catch (e) {
+      user = payload as { userId: number; email: string; name: string; role: 'admin' | 'seller' | 'buyer' };
+    } catch {
       // Invalid token
     }
   }
@@ -22,6 +22,7 @@ export async function middleware(request: NextRequest) {
   // Define route protections
   const isAdminRoute = pathname.startsWith('/admin');
   const isSellerRoute = pathname.startsWith('/seller');
+  const isBuyerRoute = pathname.startsWith('/buyer');
   const isAuthRoute = pathname === '/' || pathname === '/login' || pathname === '/register';
 
   if (isAdminRoute) {
@@ -31,8 +32,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
     if (user.role !== 'admin') {
-      // Redirect to seller dashboard if seller tries to access admin
-      return NextResponse.redirect(new URL('/seller', request.url));
+      return NextResponse.redirect(new URL(user.role === 'buyer' ? '/buyer' : '/seller', request.url));
     }
   }
 
@@ -43,8 +43,18 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
     if (user.role !== 'seller') {
-      // Redirect to admin dashboard if admin tries to access seller
-      return NextResponse.redirect(new URL('/admin', request.url));
+      return NextResponse.redirect(new URL(user.role === 'admin' ? '/admin' : '/buyer', request.url));
+    }
+  }
+
+  if (isBuyerRoute) {
+    if (!user) {
+      const loginUrl = new URL('/', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    if (user.role !== 'buyer') {
+      return NextResponse.redirect(new URL(user.role === 'admin' ? '/admin' : '/seller', request.url));
     }
   }
 
@@ -52,6 +62,8 @@ export async function middleware(request: NextRequest) {
     // Already logged in, redirect to correct dashboard
     if (user.role === 'admin') {
       return NextResponse.redirect(new URL('/admin', request.url));
+    } else if (user.role === 'buyer') {
+      return NextResponse.redirect(new URL('/buyer', request.url));
     } else {
       return NextResponse.redirect(new URL('/seller', request.url));
     }
@@ -62,5 +74,5 @@ export async function middleware(request: NextRequest) {
 
 // Config to specify matching paths
 export const config = {
-  matcher: ['/', '/login', '/register', '/admin/:path*', '/seller/:path*'],
+  matcher: ['/', '/login', '/register', '/admin/:path*', '/seller/:path*', '/buyer/:path*'],
 };

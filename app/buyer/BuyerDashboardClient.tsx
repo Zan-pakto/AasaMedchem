@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { placeOrderAction, OrderItemInput } from '../actions/orders';
 import { formatINR, Unit, convertQty, convertPrice } from '@/lib/units';
 import { 
-  Search, Trash2, ShoppingCart, CheckCircle, Clock, XCircle, 
+  Search, Trash2, ShoppingCart, CheckCircle, 
   AlertCircle, Info, Loader2, Plus, ArrowRight, History
 } from 'lucide-react';
 
@@ -49,7 +49,7 @@ interface ClientProps {
   initialOrders: Order[];
 }
 
-export default function SellerDashboardClient({ initialProducts, initialOrders }: ClientProps) {
+export default function BuyerDashboardClient({ initialProducts, initialOrders }: ClientProps) {
   const [activeTab, setActiveTab] = useState<'shop' | 'history'>('shop');
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -135,11 +135,11 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
     return isOutOfStock;
   });
 
-  // Handle Order Placement
-  const handlePlaceOrder = async () => {
+  // Handle Purchase Placement
+  const handlePlacePurchase = async () => {
     if (cart.length === 0) return;
     if (hasStockErrors) {
-      alert('One or more items exceed available inventory levels. Please adjust quantities.');
+      alert('One or more items exceed available stock. Please adjust quantities.');
       return;
     }
 
@@ -154,9 +154,9 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
       if (res.success) {
         setCart([]);
         setActiveTab('history');
-        alert('Quotation/Order submitted successfully! Awaiting Admin approval.');
+        alert('Purchase successful! Inventory has been updated.');
       } else {
-        alert(res.error || 'Failed to place order.');
+        alert(res.error || 'Failed to place purchase.');
       }
     });
   };
@@ -165,8 +165,8 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
     <div className="space-y-8 animate-fadeIn">
       {/* Page Header */}
       <div>
-        <h2 className="text-3xl font-extrabold tracking-tight text-white">Seller Order Desk</h2>
-        <p className="text-sm text-zinc-400 mt-1">Browse our real-time catalog, configure unit conversions, and place quotation requests.</p>
+        <h2 className="text-3xl font-extrabold tracking-tight text-white">Buyer Purchase Desk</h2>
+        <p className="text-sm text-zinc-400 mt-1">Browse our real-time catalog, configure unit conversions, and place direct purchases with instant stock updates.</p>
       </div>
 
       {/* Navigation Tabs */}
@@ -180,7 +180,7 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
           }`}
         >
           <ShoppingCart className="h-4 w-4" />
-          Order Builder
+          Purchase Builder
         </button>
         <button
           onClick={() => setActiveTab('history')}
@@ -191,11 +191,11 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
           }`}
         >
           <History className="h-4 w-4" />
-          My Quotation History
+          My Purchase History
         </button>
       </div>
 
-      {/* Order Builder Tab */}
+      {/* Purchase Builder Tab */}
       {activeTab === 'shop' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Product Catalog - 7 Cols */}
@@ -232,7 +232,7 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
                       <div>
                         <div className="flex items-start justify-between gap-2 mb-1.5">
                           <h4 className="font-bold text-white leading-tight">{product.name}</h4>
-                          <span className="text-[9px] font-bold text-zinc-500 bg-zinc-950/60 border border-zinc-850 px-1.5 py-0.5 rounded tracking-wide uppercase shrink-0">
+                          <span className="text-[9px] font-bold text-zinc-500 bg-zinc-950/60 border border-zinc-855 px-1.5 py-0.5 rounded tracking-wide uppercase shrink-0">
                             {product.sku}
                           </span>
                         </div>
@@ -260,7 +260,7 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
                             className={`flex items-center gap-1 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer ${
                               isInCart
                                 ? 'bg-zinc-800 text-zinc-400 border border-zinc-750 cursor-default'
-                                : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/15'
+                                : 'bg-sky-600 hover:bg-sky-700 text-white shadow-lg shadow-sky-600/15'
                             }`}
                           >
                             {isInCart ? 'In Cart' : (
@@ -283,10 +283,10 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
           <div className="lg:col-span-5 rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 shadow-xl backdrop-blur-md space-y-6">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
               <div className="flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5 text-indigo-400" />
-                <h3 className="font-bold text-white text-lg">Quotation Cart</h3>
+                <ShoppingCart className="h-5 w-5 text-sky-400" />
+                <h3 className="font-bold text-white text-lg">Purchase Cart</h3>
               </div>
-              <span className="text-xs text-zinc-400 font-semibold bg-zinc-900 px-2.5 py-1 rounded-lg border border-zinc-800">
+              <span className="text-xs text-zinc-400 font-semibold bg-zinc-900 px-2.5 py-1 rounded-lg border border-zinc-850">
                 {cart.length} items selected
               </span>
             </div>
@@ -294,7 +294,7 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
             {cart.length === 0 ? (
               <div className="py-20 text-center text-zinc-500">
                 <ShoppingCart className="h-8 w-8 mx-auto text-zinc-700 mb-3" />
-                Your quotation cart is empty. Add products from the catalog to build an order.
+                Your purchase cart is empty. Add products from the catalog to make a purchase.
               </div>
             ) : (
               <div className="space-y-5">
@@ -365,7 +365,7 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
                           </div>
                           
                           {showConvInfo && (
-                            <div className="flex justify-between items-center text-indigo-400 font-semibold border-t border-zinc-850/50 pt-1 mt-1">
+                            <div className="flex justify-between items-center text-sky-400 font-semibold border-t border-zinc-850/50 pt-1 mt-1">
                               <span className="flex items-center gap-0.5">
                                 <Info className="h-3 w-3" />
                                 Base Equiv:
@@ -397,20 +397,20 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
                 {/* Checkout Summary */}
                 <div className="border-t border-zinc-850 pt-4 space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-zinc-400">Total Quotation:</span>
-                    <span className="text-2xl font-black text-indigo-400">{formatINR(cartTotal)}</span>
+                    <span className="text-sm font-semibold text-zinc-400">Total Purchase:</span>
+                    <span className="text-2xl font-black text-sky-400">{formatINR(cartTotal)}</span>
                   </div>
 
                   <button
-                    onClick={handlePlaceOrder}
+                    onClick={handlePlacePurchase}
                     disabled={isPending || hasStockErrors}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 py-3 text-sm font-bold text-white shadow-lg shadow-sky-600/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     {isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin text-white" />
                     ) : (
                       <>
-                        Submit Quotation Order
+                        Buy Directly (Instant Checkout)
                         <ArrowRight className="h-4 w-4" />
                       </>
                     )}
@@ -428,7 +428,7 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
           {initialOrders.length === 0 ? (
             <div className="py-16 text-center text-zinc-500 rounded-2xl border border-dashed border-zinc-800">
               <History className="h-10 w-10 mx-auto text-zinc-700 mb-2" />
-              You haven&apos;t placed any quotations yet.
+              You haven&apos;t placed any purchases yet.
             </div>
           ) : (
             <div className="space-y-6">
@@ -442,26 +442,18 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
                     <div className="bg-zinc-900/40 px-6 py-4 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-white">Quotation #{order.id}</span>
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase border ${
-                            order.status === 'approved'
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                              : order.status === 'rejected'
-                              ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                              : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                          }`}>
-                            {order.status === 'approved' && <CheckCircle className="h-3 w-3" />}
-                            {order.status === 'rejected' && <XCircle className="h-3 w-3" />}
-                            {order.status === 'pending' && <Clock className="h-3 w-3" />}
-                            {order.status}
+                          <span className="font-bold text-white">Purchase #{order.id}</span>
+                          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+                            <CheckCircle className="h-3 w-3" />
+                            Completed
                           </span>
                         </div>
                         <span className="text-[11px] text-zinc-500 mt-1 block">
-                          Submitted on {new Date(order.created_at).toLocaleString()}
+                          Purchased on {new Date(order.created_at).toLocaleString()}
                         </span>
                       </div>
                       <div className="sm:text-right">
-                        <span className="text-xs text-zinc-500 block">Total Quotation Value</span>
+                        <span className="text-xs text-zinc-500 block">Total Amount Paid</span>
                         <span className="font-bold text-white text-lg">{formatINR(order.total_price)}</span>
                       </div>
                     </div>
@@ -473,7 +465,7 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
                           <tr className="border-b border-zinc-850 text-[10px] font-bold text-zinc-500 uppercase tracking-wider bg-zinc-950/20">
                             <th className="px-6 py-2.5">Product SKU</th>
                             <th className="px-6 py-2.5">Product Name</th>
-                            <th className="px-6 py-2.5 text-right">Ordered Quantity</th>
+                            <th className="px-6 py-2.5 text-right">Purchased Quantity</th>
                             <th className="px-6 py-2.5 text-right">Equivalent Base Quantity</th>
                             <th className="px-6 py-2.5 text-right">Effective Rate</th>
                             <th className="px-6 py-2.5 text-right">Calculated Price</th>
@@ -494,7 +486,7 @@ export default function SellerDashboardClient({ initialProducts, initialOrders }
                                   {item.ordered_qty.toFixed(4)} {item.ordered_unit}
                                 </td>
                                 <td className="px-6 py-3 text-right font-semibold">
-                                  <span className={isConversion ? 'text-indigo-400' : 'text-zinc-400'}>
+                                  <span className={isConversion ? 'text-sky-400' : 'text-zinc-400'}>
                                     {convertedVal.toFixed(4)} {item.base_unit}
                                   </span>
                                 </td>

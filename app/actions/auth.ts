@@ -45,14 +45,14 @@ export async function loginAction(formData: FormData): Promise<ActionResponse> {
       userId: user.id,
       email: user.email,
       name: user.name,
-      role: user.role as 'admin' | 'seller',
+      role: user.role as 'admin' | 'seller' | 'buyer',
     });
 
     return {
       success: true,
-      redirectTo: user.role === 'admin' ? '/admin' : '/seller',
+      redirectTo: user.role === 'admin' ? '/admin' : user.role === 'buyer' ? '/buyer' : '/seller',
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Login error:', error);
     return { success: false, error: 'An unexpected error occurred. Please try again.' };
   }
@@ -65,7 +65,7 @@ export async function registerAction(formData: FormData): Promise<ActionResponse
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const role = (formData.get('role') as 'admin' | 'seller') || 'seller';
+  const role = (formData.get('role') as 'admin' | 'seller' | 'buyer') || 'seller';
 
   if (!name || !email || !password) {
     return { success: false, error: 'All fields are required.' };
@@ -100,14 +100,14 @@ export async function registerAction(formData: FormData): Promise<ActionResponse
       userId: newUser.id,
       email: newUser.email,
       name: newUser.name,
-      role: newUser.role as 'admin' | 'seller',
+      role: newUser.role as 'admin' | 'seller' | 'buyer',
     });
 
     return {
       success: true,
-      redirectTo: newUser.role === 'admin' ? '/admin' : '/seller',
+      redirectTo: newUser.role === 'admin' ? '/admin' : newUser.role === 'buyer' ? '/buyer' : '/seller',
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Registration error:', error);
     return { success: false, error: 'Failed to create account. Please try again.' };
   }

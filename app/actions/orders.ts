@@ -1,6 +1,6 @@
 'use server';
 
-import { runTransaction, sql } from '@/lib/db';
+import { runTransaction } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { Unit, convertQty, convertPrice } from '@/lib/units';
@@ -38,16 +38,20 @@ export async function placeOrderAction(items: OrderItemInput[]): Promise<OrderAc
   }
 
   try {
+    const isBuyer = session.role === 'buyer';
+    const orderStatus = isBuyer ? 'approved' : 'pending';
+
     const orderId = await runTransaction(async (client) => {
       let totalPrice = 0;
       const verifiedItems = [];
 
       // 1. Validate each product and calculate prices
       for (const item of items) {
-        const res = await client.query(
-          'SELECT name, base_unit, base_price FROM products WHERE id = $1',
-          [item.productId]
-        );
+        const queryText = isBuyer
+          ? 'SELECT name, base_unit, base_price, inventory_qty FROM products WHERE id = $1 FOR UPDATE'
+          : 'SELECT name, base_unit, base_price FROM products WHERE id = $1';
+
+        const res = await client.query(queryText, [item.productId]);
         
         if (res.rows.length === 0) {
           throw new Error(`Product with ID ${item.productId} not found.`);
@@ -56,6 +60,25 @@ export async function placeOrderAction(items: OrderItemInput[]): Promise<OrderAc
         const product = res.rows[0];
         const baseUnit = product.base_unit as Unit;
         const basePrice = parseFloat(product.base_price);
+
+        if (isBuyer) {
+          const currentInventory = parseFloat(product.inventory_qty);
+          const qtyInBaseUnit = convertQty(item.orderedQty, item.orderedUnit, baseUnit);
+          
+          if (currentInventory < qtyInBaseUnit) {
+            throw new Error(
+              `Insufficient inventory for product "${product.name}". ` +
+              `Available: ${currentInventory} ${baseUnit}, ` +
+              `Required: ${qtyInBaseUnit.toFixed(4)} ${baseUnit}`
+            );
+          }
+
+          // Deduct from product inventory immediately for Buyer
+          await client.query(
+            'UPDATE products SET inventory_qty = inventory_qty - $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+            [qtyInBaseUnit, item.productId]
+          );
+        }
 
         // Calculate order rate and subtotal
         const ratePerOrderedUnit = convertPrice(basePrice, baseUnit, item.orderedUnit);
@@ -75,7 +98,7 @@ export async function placeOrderAction(items: OrderItemInput[]): Promise<OrderAc
       // 2. Insert order header
       const orderRes = await client.query(
         'INSERT INTO orders (user_id, status, total_price) VALUES ($1, $2, $3) RETURNING id',
-        [session.userId, 'pending', totalPrice]
+        [session.userId, orderStatus, totalPrice]
       );
       const insertedOrderId = orderRes.rows[0].id;
 
@@ -101,10 +124,12 @@ export async function placeOrderAction(items: OrderItemInput[]): Promise<OrderAc
 
     revalidatePath('/seller');
     revalidatePath('/admin');
+    revalidatePath('/buyer');
     return { success: true, orderId };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Place order error:', error);
-    return { success: false, error: error.message || 'Failed to place order.' };
+    const errorMessage = error instanceof Error ? error.message : 'Failed to place order.';
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -185,8 +210,9 @@ export async function updateOrderStatusAction(
     revalidatePath('/admin');
     revalidatePath('/seller');
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Update order status error:', error);
-    return { success: false, error: error.message || 'Failed to update order status.' };
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update order status.';
+    return { success: false, error: errorMessage };
   }
 }

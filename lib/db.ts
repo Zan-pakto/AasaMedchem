@@ -27,6 +27,7 @@ export function getPool() {
  * Automatically handles BEGIN, COMMIT, and ROLLBACK.
  */
 export async function runTransaction<T>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callback: (client: { query: (text: string, params?: any[]) => Promise<any> }) => Promise<T>
 ): Promise<T> {
   const pool = getPool();

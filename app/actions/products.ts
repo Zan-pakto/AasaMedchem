@@ -57,9 +57,10 @@ export async function createProductAction(formData: FormData): Promise<ProductAc
     revalidatePath('/admin');
     revalidatePath('/seller');
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Create product error:', error);
-    return { success: false, error: 'Failed to create product. ' + (error.message || '') };
+    const msg = error instanceof Error ? error.message : '';
+    return { success: false, error: 'Failed to create product. ' + msg };
   }
 }
 
@@ -122,9 +123,10 @@ export async function updateProductAction(formData: FormData): Promise<ProductAc
     revalidatePath('/admin');
     revalidatePath('/seller');
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Update product error:', error);
-    return { success: false, error: 'Failed to update product. ' + (error.message || '') };
+    const msg = error instanceof Error ? error.message : '';
+    return { success: false, error: 'Failed to update product. ' + msg };
   }
 }
 
@@ -144,7 +146,7 @@ export async function deleteProductAction(id: number): Promise<ProductActionResp
     revalidatePath('/admin');
     revalidatePath('/seller');
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Delete product error:', error);
     return { success: false, error: 'Failed to delete product. It may be referenced in existing orders.' };
   }

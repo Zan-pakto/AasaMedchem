@@ -178,9 +178,9 @@ export default function AuthPage() {
             {activeTab === 'signup' && (
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Account Role</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   <label
-                    className={`flex items-center justify-center gap-2 rounded-xl border p-3 cursor-pointer text-sm font-semibold transition-all ${
+                    className={`flex items-center justify-center gap-1 rounded-xl border p-2.5 cursor-pointer text-xs font-semibold transition-all ${
                       formData.role === 'seller'
                         ? 'border-indigo-500 bg-indigo-500/10 text-white'
                         : 'border-zinc-850 bg-zinc-950 text-zinc-400 hover:border-zinc-800'
@@ -194,11 +194,29 @@ export default function AuthPage() {
                       onChange={handleInputChange}
                       className="sr-only"
                     />
-                    <User className="h-4 w-4" />
+                    <User className="h-3.5 w-3.5" />
                     Seller
                   </label>
                   <label
-                    className={`flex items-center justify-center gap-2 rounded-xl border p-3 cursor-pointer text-sm font-semibold transition-all ${
+                    className={`flex items-center justify-center gap-1 rounded-xl border p-2.5 cursor-pointer text-xs font-semibold transition-all ${
+                      formData.role === 'buyer'
+                        ? 'border-sky-500 bg-sky-500/10 text-white'
+                        : 'border-zinc-850 bg-zinc-950 text-zinc-400 hover:border-zinc-800'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="role"
+                      value="buyer"
+                      checked={formData.role === 'buyer'}
+                      onChange={handleInputChange}
+                      className="sr-only"
+                    />
+                    <ShoppingBag className="h-3.5 w-3.5" />
+                    Buyer
+                  </label>
+                  <label
+                    className={`flex items-center justify-center gap-1 rounded-xl border p-2.5 cursor-pointer text-xs font-semibold transition-all ${
                       formData.role === 'admin'
                         ? 'border-purple-500 bg-purple-500/10 text-white'
                         : 'border-zinc-850 bg-zinc-950 text-zinc-400 hover:border-zinc-800'
@@ -212,7 +230,7 @@ export default function AuthPage() {
                       onChange={handleInputChange}
                       className="sr-only"
                     />
-                    <Shield className="h-4 w-4" />
+                    <Shield className="h-3.5 w-3.5" />
                     Admin
                   </label>
                 </div>
@@ -241,26 +259,36 @@ export default function AuthPage() {
               <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-3 text-center">
                 Demo Accounts (One-Click Auto-Fill)
               </span>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => autofill('admin@inventory.com', 'admin123')}
-                  className="flex flex-col items-center justify-center rounded-xl border border-zinc-850 bg-zinc-950 hover:bg-zinc-900 p-2.5 transition-colors cursor-pointer text-left w-full group"
+                  className="flex flex-col items-center justify-center rounded-xl border border-zinc-850 bg-zinc-950 hover:bg-zinc-900 py-2.5 px-1 transition-colors cursor-pointer text-center w-full group"
                 >
                   <span className="text-xs font-bold text-zinc-300 group-hover:text-purple-400 flex items-center gap-1">
                     <Shield className="h-3 w-3" /> Admin
                   </span>
-                  <span className="text-[10px] text-zinc-500 mt-0.5">admin@inventory.com</span>
+                  <span className="text-[9px] text-zinc-500 mt-0.5 overflow-hidden text-ellipsis w-full">admin@inventory.com</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => autofill('seller@inventory.com', 'seller123')}
-                  className="flex flex-col items-center justify-center rounded-xl border border-zinc-850 bg-zinc-950 hover:bg-zinc-900 p-2.5 transition-colors cursor-pointer text-left w-full group"
+                  className="flex flex-col items-center justify-center rounded-xl border border-zinc-850 bg-zinc-950 hover:bg-zinc-900 py-2.5 px-1 transition-colors cursor-pointer text-center w-full group"
                 >
                   <span className="text-xs font-bold text-zinc-300 group-hover:text-emerald-400 flex items-center gap-1">
                     <User className="h-3 w-3" /> Seller
                   </span>
-                  <span className="text-[10px] text-zinc-500 mt-0.5">seller@inventory.com</span>
+                  <span className="text-[9px] text-zinc-500 mt-0.5 overflow-hidden text-ellipsis w-full">seller@inventory.com</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => autofill('buyer@inventory.com', 'buyer123')}
+                  className="flex flex-col items-center justify-center rounded-xl border border-zinc-850 bg-zinc-950 hover:bg-zinc-900 py-2.5 px-1 transition-colors cursor-pointer text-center w-full group"
+                >
+                  <span className="text-xs font-bold text-zinc-300 group-hover:text-sky-400 flex items-center gap-1">
+                    <ShoppingBag className="h-3 w-3" /> Buyer
+                  </span>
+                  <span className="text-[9px] text-zinc-500 mt-0.5 overflow-hidden text-ellipsis w-full">buyer@inventory.com</span>
                 </button>
               </div>
             </div>

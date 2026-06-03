@@ -65,23 +65,29 @@ async function main() {
     console.log('Seeding default users...');
     const adminEmail = 'admin@inventory.com';
     const sellerEmail = 'seller@inventory.com';
+    const buyerEmail = 'buyer@inventory.com';
 
-    const existingUsers = await sql`SELECT id FROM users LIMIT 1`;
-    if (existingUsers.length === 0) {
-      const adminHash = hashPassword('admin123');
-      const sellerHash = hashPassword('seller123');
+    // Check and seed each default user
+    const checkUser = async (name: string, email: string, passwordHash: string, role: string) => {
+      const existing = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase().trim()} LIMIT 1`;
+      if (existing.length === 0) {
+        await sql`
+          INSERT INTO users (name, email, password_hash, role)
+          VALUES (${name}, ${email.toLowerCase().trim()}, ${passwordHash}, ${role})
+        `;
+        console.log(`- Seeded user: ${email} (${role})`);
+      } else {
+        console.log(`- User already exists: ${email} (${role})`);
+      }
+    };
 
-      await sql`
-        INSERT INTO users (name, email, password_hash, role) VALUES 
-        ('System Administrator', ${adminEmail}, ${adminHash}, 'admin'),
-        ('Retail Seller', ${sellerEmail}, ${sellerHash}, 'seller')
-      `;
-      console.log('Default users seeded successfully:');
-      console.log(`- Admin: ${adminEmail} (password: admin123)`);
-      console.log(`- Seller: ${sellerEmail} (password: seller123)`);
-    } else {
-      console.log('Users already seeded.');
-    }
+    const adminHash = hashPassword('admin123');
+    const sellerHash = hashPassword('seller123');
+    const buyerHash = hashPassword('buyer123');
+
+    await checkUser('System Administrator', adminEmail, adminHash, 'admin');
+    await checkUser('Retail Seller', sellerEmail, sellerHash, 'seller');
+    await checkUser('Retail Buyer', buyerEmail, buyerHash, 'buyer');
 
     // 3. Seed Default Products
     console.log('Seeding default products...');
