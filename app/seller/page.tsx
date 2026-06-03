@@ -14,19 +14,20 @@ export default async function SellerPage() {
     redirect('/');
   }
 
-  // Fetch all products for browse
+  // Fetch only this seller's products
   const products = await sql`
     SELECT id, name, sku, description, base_unit, base_price, inventory_qty
     FROM products
+    WHERE seller_id = ${session.userId}
     ORDER BY name ASC
   `;
 
-  // Fetch all orders in the system with customer details
+  // Fetch only orders containing this seller's products
   const orders = await sql`
     SELECT 
       o.id, 
       o.status, 
-      o.total_price::float as total_price, 
+      SUM(oi.calculated_price)::float as total_price, 
       o.created_at, 
       u.name as user_name,
       u.email as user_email,
@@ -50,6 +51,7 @@ export default async function SellerPage() {
     JOIN users u ON o.user_id = u.id
     LEFT JOIN order_items oi ON o.id = oi.order_id
     LEFT JOIN products p ON oi.product_id = p.id
+    WHERE p.seller_id = ${session.userId}
     GROUP BY o.id, u.name, u.email
     ORDER BY o.created_at DESC
   `;

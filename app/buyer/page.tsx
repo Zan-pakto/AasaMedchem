@@ -14,11 +14,12 @@ export default async function BuyerPage() {
     redirect('/');
   }
 
-  // Fetch all products for browse
+  // Fetch all products for browse along with seller details
   const products = await sql`
-    SELECT id, name, sku, description, base_unit, base_price, inventory_qty
-    FROM products
-    ORDER BY name ASC
+    SELECT p.id, p.name, p.sku, p.description, p.base_unit, p.base_price, p.inventory_qty, u.name as seller_name
+    FROM products p
+    LEFT JOIN users u ON p.seller_id = u.id
+    ORDER BY p.name ASC
   `;
 
   // Fetch only the logged-in buyer's orders
@@ -61,6 +62,7 @@ export default async function BuyerPage() {
     base_unit: p.base_unit,
     base_price: parseFloat(p.base_price),
     inventory_qty: parseFloat(p.inventory_qty),
+    seller_name: p.seller_name || 'System Admin',
   }));
 
   const formattedOrders = orders.map((o) => ({

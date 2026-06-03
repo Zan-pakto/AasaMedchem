@@ -21,6 +21,7 @@ interface Product {
   base_unit: Unit;
   base_price: number;
   inventory_qty: number;
+  seller_name?: string;
 }
 
 interface OrderItem {
@@ -278,9 +279,14 @@ export default function AdminDashboardClient({ initialProducts, initialOrders }:
                       </div>
 
                       {/* Description */}
-                      <p className="text-sm text-zinc-400 line-clamp-2 min-h-[40px] mb-4">
+                      <p className="text-sm text-zinc-400 line-clamp-2 min-h-[40px] mb-2">
                         {product.description || 'No description provided.'}
                       </p>
+                      {product.seller_name && (
+                        <div className="text-[11px] text-indigo-400 font-semibold mb-3">
+                          Seller: {product.seller_name}
+                        </div>
+                      )}
                     </div>
 
                     {/* Meta Fields */}

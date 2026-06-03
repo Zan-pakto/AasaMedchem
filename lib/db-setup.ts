@@ -22,6 +22,7 @@ export async function initializeDatabase() {
     await sql`
       CREATE TABLE IF NOT EXISTS products (
         id SERIAL PRIMARY KEY,
+        seller_id INT REFERENCES users(id) ON DELETE CASCADE,
         name VARCHAR(150) NOT NULL,
         sku VARCHAR(50) UNIQUE NOT NULL,
         description TEXT,
@@ -57,6 +58,13 @@ export async function initializeDatabase() {
         calculated_price NUMERIC(20, 4) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+    `;
+
+    // Migration step for existing databases: Add seller_id column if it does not exist
+    console.log('Checking for database migrations...');
+    await sql`
+      ALTER TABLE products 
+      ADD COLUMN IF NOT EXISTS seller_id INT REFERENCES users(id) ON DELETE CASCADE;
     `;
 
     console.log('Tables created or already exist.');

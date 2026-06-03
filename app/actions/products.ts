@@ -50,8 +50,8 @@ export async function createProductAction(formData: FormData): Promise<ProductAc
     }
 
     await sql`
-      INSERT INTO products (name, sku, description, base_unit, base_price, inventory_qty)
-      VALUES (${name.trim()}, ${sku.toUpperCase().trim()}, ${description?.trim() || null}, ${base_unit}, ${base_price}, ${inventory_qty})
+      INSERT INTO products (seller_id, name, sku, description, base_unit, base_price, inventory_qty)
+      VALUES (${session.userId}, ${name.trim()}, ${sku.toUpperCase().trim()}, ${description?.trim() || null}, ${base_unit}, ${base_price}, ${inventory_qty})
     `;
 
     revalidatePath('/admin');
@@ -100,6 +100,18 @@ export async function updateProductAction(formData: FormData): Promise<ProductAc
   }
 
   try {
+    // Check ownership
+    const productRes = await sql`
+      SELECT seller_id FROM products WHERE id = ${id} LIMIT 1
+    `;
+    if (productRes.length === 0) {
+      return { success: false, error: 'Product not found.' };
+    }
+    const product = productRes[0];
+    if (session.role === 'seller' && product.seller_id !== session.userId) {
+      return { success: false, error: 'Unauthorized: You can only edit your own products.' };
+    }
+
     // Check SKU uniqueness excluding current product
     const existing = await sql`
       SELECT id FROM products WHERE sku = ${sku.toUpperCase().trim()} AND id != ${id} LIMIT 1
@@ -140,6 +152,17 @@ export async function deleteProductAction(id: number): Promise<ProductActionResp
   }
 
   try {
+    // Check ownership
+    const productRes = await sql`
+      SELECT seller_id FROM products WHERE id = ${id} LIMIT 1
+    `;
+    if (productRes.length > 0) {
+      const product = productRes[0];
+      if (session.role === 'seller' && product.seller_id !== session.userId) {
+        return { success: false, error: 'Unauthorized: You can only delete your own products.' };
+      }
+    }
+
     await sql`
       DELETE FROM products WHERE id = ${id}
     `;

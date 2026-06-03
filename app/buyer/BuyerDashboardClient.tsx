@@ -16,6 +16,7 @@ interface Product {
   base_unit: Unit;
   base_price: number;
   inventory_qty: number;
+  seller_name?: string;
 }
 
 interface CartItem {
@@ -236,9 +237,14 @@ export default function BuyerDashboardClient({ initialProducts, initialOrders }:
                             {product.sku}
                           </span>
                         </div>
-                        <p className="text-xs text-zinc-400 line-clamp-2 min-h-[32px] mb-4">
+                        <p className="text-xs text-zinc-400 line-clamp-2 min-h-[32px] mb-2">
                           {product.description || 'No description available.'}
                         </p>
+                        {product.seller_name && (
+                          <div className="text-[10px] text-indigo-400 font-semibold mb-3">
+                            Sold by: {product.seller_name}
+                          </div>
+                        )}
                       </div>
 
                       <div className="border-t border-zinc-800/60 pt-3 mt-auto flex items-center justify-between">

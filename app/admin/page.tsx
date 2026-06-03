@@ -15,11 +15,12 @@ export default async function AdminPage() {
     redirect('/');
   }
 
-  // Fetch all products
+  // Fetch all products with seller names
   const products = await sql`
-    SELECT id, name, sku, description, base_unit, base_price, inventory_qty
-    FROM products
-    ORDER BY name ASC
+    SELECT p.id, p.name, p.sku, p.description, p.base_unit, p.base_price, p.inventory_qty, u.name as seller_name
+    FROM products p
+    LEFT JOIN users u ON p.seller_id = u.id
+    ORDER BY p.name ASC
   `;
 
   // Fetch all orders and their items in a single query using JSON aggregation
@@ -51,7 +52,7 @@ export default async function AdminPage() {
     JOIN users u ON o.user_id = u.id
     LEFT JOIN order_items oi ON o.id = oi.order_id
     LEFT JOIN products p ON oi.product_id = p.id
-    GROUP BY o.id, u.id
+    GROUP BY o.id, u.name, u.email
     ORDER BY o.created_at DESC
   `;
 
@@ -64,6 +65,7 @@ export default async function AdminPage() {
     base_unit: p.base_unit,
     base_price: parseFloat(p.base_price),
     inventory_qty: parseFloat(p.inventory_qty),
+    seller_name: p.seller_name || 'System Admin',
   }));
 
   const formattedOrders = orders.map((o) => ({
