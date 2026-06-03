@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginAction, registerAction } from './actions/auth';
-import { ShoppingBag, Loader2, Shield, User, Lock, Mail, ChevronRight } from 'lucide-react';
+import { ShoppingBag, Loader2, User, Lock, Mail, ChevronRight } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function AuthPage() {
@@ -53,16 +53,6 @@ export default function AuthPage() {
       setError(res.error || 'Something went wrong');
       setLoading(false);
     }
-  };
-
-  const autofill = (email: string, pass: string) => {
-    setFormData({
-      ...formData,
-      email,
-      password: pass,
-    });
-    setActiveTab('signin');
-    setError(null);
   };
 
   return (
@@ -239,28 +229,6 @@ export default function AuthPage() {
               )}
             </button>
           </form>
-
-          {/* Demo Logins */}
-          {activeTab === 'signin' && (
-            <div className="mt-8 border-t border-zinc-850 pt-6">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-3 text-center">
-                Predefined Admin Credentials
-              </span>
-              <div className="flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => autofill('admin@gmail.com', 'admin@1234')}
-                  className="flex flex-col items-center justify-center rounded-xl border border-zinc-850 bg-zinc-950 hover:bg-zinc-900 py-3 px-6 transition-colors cursor-pointer text-center w-full max-w-xs group"
-                >
-                  <span className="text-sm font-bold text-zinc-300 group-hover:text-purple-400 flex items-center gap-1.5 justify-center">
-                    <Shield className="h-4 w-4" /> Admin Login
-                  </span>
-                  <span className="text-xs text-indigo-400 mt-1.5 font-semibold">admin@gmail.com</span>
-                  <span className="text-[10px] text-zinc-500 mt-0.5">Password: admin@1234</span>
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
