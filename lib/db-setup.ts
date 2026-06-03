@@ -1,4 +1,5 @@
 import { sql } from './db';
+import { hashPassword } from './auth';
 
 export async function initializeDatabase() {
   console.log('Starting database setup...');
@@ -60,7 +61,18 @@ export async function initializeDatabase() {
 
     console.log('Tables created or already exist.');
 
-    console.log('Tables created or already exist.');
+    // Seed Predefined Admin
+    const adminEmail = 'admin@gmail.com';
+    const adminExists = await sql`SELECT id FROM users WHERE email = ${adminEmail} LIMIT 1`;
+    if (adminExists.length === 0) {
+      const adminHash = hashPassword('admin@1234');
+      await sql`
+        INSERT INTO users (name, email, password_hash, role)
+        VALUES ('System Administrator', ${adminEmail}, ${adminHash}, 'admin')
+      `;
+      console.log('Predefined admin seeded successfully.');
+    }
+
     console.log('Database setup completed successfully.');
   } catch (error) {
     console.error('Error during database setup:', error);
