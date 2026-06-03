@@ -108,12 +108,12 @@ export async function registerAction(formData: FormData): Promise<ActionResponse
       userId: newUser.id,
       email: newUser.email,
       name: newUser.name,
-      role: newUser.role as 'admin' | 'seller' | 'buyer',
+      role: newUser.role as 'seller' | 'buyer',
     });
 
     return {
       success: true,
-      redirectTo: newUser.role === 'admin' ? '/admin' : newUser.role === 'buyer' ? '/buyer' : '/seller',
+      redirectTo: newUser.role === 'buyer' ? '/buyer' : '/seller',
     };
   } catch (error) {
     console.error('Registration error:', error);
